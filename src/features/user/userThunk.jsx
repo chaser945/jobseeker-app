@@ -1,4 +1,4 @@
-import customFetch from "../../customFetch"
+import customFetch, { checkForUnauthorizedUser } from "../../customFetch"
 import { logOut } from "./userSlice"
 
 export const registerUserThunk = async (url, user, thunkAPI) => {
@@ -6,7 +6,7 @@ export const registerUserThunk = async (url, user, thunkAPI) => {
     const response = await customFetch.post(url, user)
     return response.data
   } catch (error) {
-    return thunkAPI.rejectWithValue(error.response.data.msg)
+    return checkForUnauthorizedUser(error, thunkAPI)
   }
 }
 
@@ -15,7 +15,7 @@ export const loginUserThunk = async (url, user, thunkAPI) => {
     const response = await customFetch.post(url, user)
     return response.data
   } catch (error) {
-    return thunkAPI.rejectWithValue(error.response.data.msg)
+    return checkForUnauthorizedUser(error, thunkAPI)
   }
 }
 
@@ -31,6 +31,6 @@ export const updateUserThunk = async (url, user, thunkAPI) => {
       thunkAPI.dispatch(logOut())
       return thunkAPI.rejectWithValue("Unauthorized! Please, Login again.")
     }
-    return thunkAPI.rejectWithValue(error.response.data.msg)
+    return checkForUnauthorizedUser(error, thunkAPI)
   }
 }

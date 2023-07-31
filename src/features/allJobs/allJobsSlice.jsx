@@ -1,6 +1,10 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit"
 import { toast } from "react-toastify"
-import customFetch from "../../customFetch"
+import {
+  clearStoreThunk,
+  fetchAllJobsThunk,
+  fetchStatsThunk,
+} from "./allJobsThunk"
 
 const initialFiltersState = {
   search: "",
@@ -23,31 +27,17 @@ const initialState = {
 
 export const fetchAllJobs = createAsyncThunk(
   "allJobs/fetchAllJobs",
-  async (_, thunkAPI) => {
-    try {
-      const response = await customFetch.get("/jobs")
-      // console.log("fetching all jobs")
-      //   console.log(response)
-      return response.data.jobs
-    } catch (error) {
-      console.log(error)
-      return thunkAPI.rejectWithValue(error.response.data.msg)
-    }
-  }
+  fetchAllJobsThunk
 )
 
 export const fetchStats = createAsyncThunk(
   "allJobs/fetchStats",
-  async (_, thunkAPI) => {
-    try {
-      const response = await customFetch.get("/jobs/stats")
-      // console.log(response.data)
-      return response.data
-    } catch (error) {
-      console.log(error)
-      thunkAPI.rejectWithValue(error.response.data.msg)
-    }
-  }
+  fetchStatsThunk
+)
+
+export const clearStore = createAsyncThunk(
+  "allJobs/clearStore",
+  clearStoreThunk
 )
 
 const allJobsSlice = createSlice({
@@ -63,10 +53,17 @@ const allJobsSlice = createSlice({
     handleChange: (state, action) => {
       // console.log(action.payload)
       const { name, value } = action.payload
+      state.page = 1
       state[name] = value
     },
     clearFilters: (state, action) => {
       return { ...state, ...initialFiltersState }
+    },
+    changePage: (state, action) => {
+      state.page = action.payload
+    },
+    defaultAllJobsState: (state) => {
+      return { ...initialState }
     },
   },
   extraReducers: (builder) => {
@@ -76,7 +73,10 @@ const allJobsSlice = createSlice({
       })
       .addCase(fetchAllJobs.fulfilled, (state, action) => {
         state.isLoading = false
-        state.jobs = action.payload
+        const { jobs, totalJobs, numOfPages } = action.payload
+        state.jobs = jobs
+        state.totalJobs = totalJobs
+        state.numOfPages = numOfPages
       })
       .addCase(fetchAllJobs.rejected, (state, action) => {
         state.isLoading = false
@@ -92,17 +92,27 @@ const allJobsSlice = createSlice({
         state.stats = action.payload.defaultStats
         state.monthlyApplications = action.payload.monthlyApplications
       })
-      .addCase(fetchStats.rejected),
-      (state, action) => {
+      .addCase(fetchStats.rejected, (state, action) => {
         state.isLoading = false
         toast.error(action.payload, {
           position: "top-center",
         })
-      }
+      })
+      .addCase(clearStore.rejected, (state, action) => {
+        toast.error("there was an error", {
+          position: "top-center",
+        })
+      })
   },
 })
 
-export const { showLoading, hideLoading, handleChange, clearFilters } =
-  allJobsSlice.actions
+export const {
+  showLoading,
+  hideLoading,
+  handleChange,
+  clearFilters,
+  changePage,
+  defaultAllJobsState,
+} = allJobsSlice.actions
 
 export default allJobsSlice.reducer

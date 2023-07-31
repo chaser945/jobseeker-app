@@ -7,7 +7,7 @@ const FormRowSelect = ({
   handleChange,
 }) => {
   return (
-    <>
+    <div>
       <label htmlFor={id} className="form-label">
         {labelText || name}
       </label>
@@ -26,7 +26,7 @@ const FormRowSelect = ({
           )
         })}
       </select>
-    </>
+    </div>
   )
 }
 export default FormRowSelect

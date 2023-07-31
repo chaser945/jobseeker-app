@@ -44,7 +44,7 @@ const userSlice = createSlice({
     },
     logOut: (state, action) => {
       state.user = null
-      toast.success("Logged Out", {
+      toast.success(action.payload, {
         position: "top-center",
       })
       clearLocalStorage()

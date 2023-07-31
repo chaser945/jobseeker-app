@@ -1,4 +1,4 @@
-import customFetch from "../../customFetch"
+import customFetch, { checkForUnauthorizedUser } from "../../customFetch"
 import { showLoading, hideLoading, fetchAllJobs } from "../allJobs/allJobsSlice"
 import { clearValues } from "./jobSlice"
 
@@ -12,7 +12,7 @@ export const createJobThunk = async (job, thunkAPI) => {
       thunkAPI.dispatch(logOut())
       return thunkAPI.rejectWithValue("Unauthorized! Please, Login again.")
     }
-    return thunkAPI.rejectWithValue(error.response.data.msg)
+    return checkForUnauthorizedUser(error, thunkAPI)
   }
 }
 
@@ -26,7 +26,7 @@ export const deleteJobThunk = async (jobId, thunkAPI) => {
   } catch (error) {
     thunkAPI.dispatch(hideLoading())
     console.log(error)
-    thunkAPI.rejectWithValue(error.response.data.msg)
+    return checkForUnauthorizedUser(error, thunkAPI)
   }
 }
 
@@ -36,6 +36,6 @@ export const editJobThunk = async ({ jobId, job }, thunkAPI) => {
     thunkAPI.dispatch(clearValues())
     return response.data
   } catch (error) {
-    thunkAPI.rejectWithValue(error.response.data.msg)
+    return checkForUnauthorizedUser(error, thunkAPI)
   }
 }
