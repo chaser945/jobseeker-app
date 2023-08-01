@@ -33,7 +33,9 @@ const SearchContainer = () => {
     }
   }
 
-  const optimizedDebounce = useMemo(() => debounce(), [])
+  const optimizedDebounce = useMemo(() => {
+    return debounce()
+  }, [])
   return (
     <Wrapper>
       <form className="form">
