@@ -96,7 +96,7 @@ const RegisterPage = () => {
         />
 
         <button className="btn btn-block" disabled={isLoading}>
-          {isLoading ? "Loading..." : "Submit"}
+          Submit
         </button>
         <button
           type="button"
